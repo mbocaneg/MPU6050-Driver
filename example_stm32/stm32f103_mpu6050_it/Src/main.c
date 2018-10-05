@@ -157,27 +157,15 @@ void flush_strbuf() {
 Mpu6050 mpu6050;
 
 //floats for holding pitch/roll angles
-float pitch, roll;
+volatile float pitch, roll;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 	UNUSED(htim);
 
-	HAL_TIM_Base_Stop_IT(&htim2);
-
 	//update IMU, and calculate pitch/roll angles
 	mpu6050_update(&mpu6050);
 	mpu6050_calc_pitch_roll(&mpu6050, &pitch, &roll);
-
-	//flush string buffer, and then write pitch/roll values
-	//into a debug message. Write this message to the USART
-	//so it can be viewed in a terminal emulator(115200 baud,
-	//8 bits data, 1 stop bit, no parity, no flow control)
-	flush_strbuf();
-	sprintf(strbuf, "Pitch: %f, Roll: %f\n", pitch, roll);
-	uart_print(strbuf, strlen(strbuf));
-
-	HAL_TIM_Base_Start_IT(&htim2);
 }
 
 /* USER CODE END 0 */
@@ -226,6 +214,15 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
+		
+		//flush string buffer, and then write pitch/roll values
+		//into a debug message. Write this message to the USART
+		//so it can be viewed in a terminal emulator(115200 baud,
+		//8 bits data, 1 stop bit, no parity, no flow control)
+		flush_strbuf();
+		sprintf(strbuf, "Pitch: %f, Roll: %f\n", pitch, roll);
+		uart_print(strbuf, strlen(strbuf));
+		
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
